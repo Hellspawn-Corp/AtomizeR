@@ -1,0 +1,10 @@
+[package]
+name = "AtomizeR"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+scraper = "0.23.1"
+xml = "0.8.20"
+chrono = "0.4"
+sqlite = { version = "0.34", features = ["bundled"] }
