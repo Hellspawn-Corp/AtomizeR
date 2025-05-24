@@ -1,18 +1,25 @@
-mod cli;
 use clap::Parser;
+
+mod cli;
 use cli::Cli;
+mod logic {
+    pub mod main_flow;
+    pub mod templating;
+}
+mod utils {
+    pub mod json_reader;
+    pub mod json_writer;
+}
+
+mod model {
+    pub mod json {
+        pub mod json_entries;
+        pub mod json_entry;
+        pub mod json_feed;
+    }
+}
 
 fn main() -> std::io::Result<()> {
     let args = Cli::parse();
-    match args.json {
-        Some(json) => println!("Using JSON file: {}", json),
-        None => println!("No file provided, creating default template posts.json!"),
-    }
-    Ok(())
-    // if let Some(path) = args.json {
-    //     std::fs::write(&path, "test").expect("Failed to write JSON file");
-    //     println!("Greeting written to {}", path);
-    // } else {
-    //     println!("Hello, world!");
-    // }
+    logic::main_flow::start_flow(args)
 }
