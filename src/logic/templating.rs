@@ -1,6 +1,8 @@
 use crate::model::json::json_entries::JsonEntries;
 use crate::model::json::json_entry::JsonEntry;
 use crate::utils;
+use chrono::{FixedOffset, TimeZone, Utc};
+
 use log::debug;
 use std::io::{self};
 use uuid::Uuid;
@@ -12,8 +14,8 @@ pub fn create_feed_json_template() -> io::Result<()> {
             id: Uuid::new_v4(),
             title: "Entry Title".to_string(),
             url: "https://www.youtube.com/watch?v=QH2-TGUlwu4".to_string(),
-            published: chrono::Utc::now().with_timezone(&chrono::FixedOffset::east_opt(0).unwrap()),
-            updated: chrono::Utc::now().with_timezone(&chrono::FixedOffset::east_opt(0).unwrap()),
+            published: Utc::now().with_timezone(&FixedOffset::east_opt(0).unwrap()),
+            updated: Utc::now().with_timezone(&FixedOffset::east_opt(0).unwrap()),
             summary: "Test".to_string(),
             content: "Hello everybody, my name is Markiplier and today we're going to be playing SCP Containment Breach: My Little Pony.".to_string(),
             hash: "d41d8cd98f00b204e9800998ecf8427e".to_string(),
