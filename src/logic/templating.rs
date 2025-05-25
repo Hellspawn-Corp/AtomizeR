@@ -16,7 +16,6 @@ pub fn create_feed_json_template() -> io::Result<()> {
             updated: chrono::Utc::now().with_timezone(&chrono::FixedOffset::east_opt(0).unwrap()),
             summary: "Test".to_string(),
             content: "Hello everybody, my name is Markiplier and today we're going to be playing SCP Containment Breach: My Little Pony.".to_string(),
-            // Set published and updated to current date/time
             hash: "d41d8cd98f00b204e9800998ecf8427e".to_string(),
         }],
     };
