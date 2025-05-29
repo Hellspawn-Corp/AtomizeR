@@ -1,0 +1,23 @@
+name: atomizer main pipeline
+# Build project and run some tests hopefully.
+
+on:
+  push:
+  pull_request:
+    types: [opened]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest # 😔😔😔
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: cargo build --release
+
+  test:
+    runs-on: ubuntu-latest # 😔😔😔
+
+    steps:
+      - run: cargo test --all-features
+    needs: build
