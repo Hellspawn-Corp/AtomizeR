@@ -4,3 +4,10 @@ use serde::{Deserialize, Serialize};
 pub struct JsonEntries {
     pub entries: Vec<JsonEntry>,
 }
+
+impl FromIterator<JsonEntry> for JsonEntries {
+    fn from_iter<I: IntoIterator<Item = JsonEntry>>(iter: I) -> Self {
+        let entries: Vec<JsonEntry> = iter.into_iter().collect();
+        JsonEntries { entries }
+    }
+}

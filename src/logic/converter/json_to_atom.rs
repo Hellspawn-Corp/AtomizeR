@@ -1,17 +1,7 @@
-use chrono::{DateTime, FixedOffset, Utc};
-
-// fn main() {
-//     let dt: DateTime<FixedOffset> = DateTime::parse_from_rfc2822("").unwrap();
-//     let atom_time = dt.to_rfc3339();
-//     println!("{}", atom_time);
-
-//     // Example Atom entry
-//     let atom_entry = format!("<entry>\n  <updated>{}</updated>\n</entry>", atom_time);
-//     println!("{}", atom_entry);
-// }
+use chrono::{FixedOffset, Utc};
 
 use crate::model::json::json_entry::JsonEntry;
-use atom_syndication::{Content, Entry, Feed};
+use atom_syndication::{Content, Entry, Feed, Text};
 
 pub fn json_entries_to_atom(posts: &[JsonEntry]) -> Feed {
     let updated = posts
@@ -26,6 +16,7 @@ pub fn json_entries_to_atom(posts: &[JsonEntry]) -> Feed {
             let mut entry = Entry::default();
             entry.set_id(format!("tag:example.com,2025:{}", post.id));
             entry.set_title(post.title.clone());
+            entry.set_summary(Text::from(post.summary.clone()));
             entry.set_updated(post.published);
             let mut content = Content::default();
             content.set_content_type(Some("html".to_string()));
