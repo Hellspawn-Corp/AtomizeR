@@ -4,6 +4,7 @@ use uuid::Uuid;
 #[derive(Serialize, Deserialize, Debug)]
 pub struct JsonEntry {
     pub id: Uuid,
+    pub internal_id: String,
     pub title: String,
     pub url: String,
     pub published: DateTime<FixedOffset>,

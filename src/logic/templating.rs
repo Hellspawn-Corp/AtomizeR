@@ -1,7 +1,7 @@
 use crate::model::json::json_entries::JsonEntries;
 use crate::model::json::json_entry::JsonEntry;
 use crate::utils;
-use chrono::{FixedOffset, TimeZone, Utc};
+use chrono::{FixedOffset, Utc};
 
 use log::debug;
 use std::io::{self};
@@ -12,6 +12,7 @@ pub fn create_feed_json_template() -> io::Result<()> {
     let template = JsonEntries {
         entries: vec![JsonEntry {
             id: Uuid::new_v4(),
+						internal_id: "User-Defined-ID".to_string(),
             title: "Entry Title".to_string(),
             url: "https://www.youtube.com/watch?v=QH2-TGUlwu4".to_string(),
             published: Utc::now().with_timezone(&FixedOffset::east_opt(0).unwrap()),

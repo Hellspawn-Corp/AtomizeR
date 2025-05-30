@@ -1,65 +1,55 @@
-struct AtomEntry {
+use chrono::{DateTime, Utc};
+use uuid::Uuid;
+
+use crate::model::base::entry::BaseEntry;
+
+pub struct AtomEntry {
     base: BaseEntry,
     summary: String,
 }
 
-impl Entry for AtomEntry {
+impl AtomEntry {
     fn new(
-        &self,
         id: Uuid,
         title: String,
         url: String,
         published: DateTime<Utc>,
         updated: DateTime<Utc>,
         content: String,
-        hash: String,
         summary: String,
+        hash: String,
     ) -> Self {
         AtomEntry {
-            entry: Entry::new(id, title, url, published, updated, content, hash),
-            summary,
-        }
-    }
-
-    fn new(
-        &self,
-        title: String,
-        url: String,
-        published: DateTime<Utc>,
-        updated: DateTime<Utc>,
-        content: String,
-    ) -> Self {
-        AtomEntry {
-            entry: Entry::new(title, url, published, updated, content),
+            base: BaseEntry::new(id, title, url, published, updated, content, hash),
             summary,
         }
     }
 
     fn get_id(&self) -> Uuid {
-        self.entry.get_id()
+        self.base.get_id()
     }
 
     fn get_title(&self) -> String {
-        self.entry.get_title()
+        self.base.get_title()
     }
 
     fn get_url(&self) -> String {
-        self.entry.get_url()
+        self.base.get_url()
     }
 
     fn get_published(&self) -> DateTime<Utc> {
-        self.entry.get_published()
+        self.base.get_published()
     }
 
     fn get_updated(&self) -> DateTime<Utc> {
-        self.entry.get_updated()
+        self.base.get_updated()
     }
 
     fn get_content(&self) -> String {
-        self.entry.get_content()
+        self.base.get_content()
     }
 
     fn get_hash(&self) -> String {
-        self.entry.get_hash()
+        self.base.get_hash()
     }
 }
