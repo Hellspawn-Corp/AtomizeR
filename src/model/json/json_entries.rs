@@ -5,6 +5,12 @@ pub struct JsonEntries {
     pub entries: Vec<JsonEntry>,
 }
 
+impl JsonEntries {
+    pub fn new(entries: Vec<JsonEntry>) -> Self {
+        JsonEntries { entries }
+    }
+}
+
 impl FromIterator<JsonEntry> for JsonEntries {
     fn from_iter<I: IntoIterator<Item = JsonEntry>>(iter: I) -> Self {
         let entries: Vec<JsonEntry> = iter.into_iter().collect();
