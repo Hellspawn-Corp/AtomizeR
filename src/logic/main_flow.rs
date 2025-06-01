@@ -151,7 +151,7 @@ pub fn get_user_input(entry: &JsonEntry, ratio: f32) -> (JsonEntry, f32, bool) {
     );
 
     let user_input = Confirm::new(&format!(
-        "Looks like you made a miniscule change to this entry {}, do you want to mark it as updated?",
+        "Looks like you made a change to this entry: {}, do you want to mark it as updated?",
         entry.title
     ))
     .with_default(false)
