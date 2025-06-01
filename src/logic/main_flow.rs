@@ -36,20 +36,6 @@ pub fn start_flow(args: Cli) -> std::io::Result<()> {
 
             let json_entries = convert_user_input_to_entries(user_input);
 
-            let old = "Hello world!\nThis is old content.";
-            let new = "Hello world!\nThis is new content!";
-
-            let diff = TextDiff::from_lines(old, new);
-
-            for change in diff.iter_all_changes() {
-                match change.tag() {
-                    ChangeTag::Delete => print!("-"),
-                    ChangeTag::Insert => print!("+"),
-                    ChangeTag::Equal => print!(" "),
-                }
-                print!("{}", change);
-            }
-
             let previous_json_entries: JsonEntries = read_json_from_file("entries.json")?;
 
             let updated_entries =
@@ -195,8 +181,14 @@ pub fn parse_new_entries(
     new_entries.iter().for_each(|new_entry| {
         old_entries.iter().for_each(|old_entry| {
             if old_entry.internal_id == new_entry.internal_id {
+                // If diff ratio is over a certain threshold, we consider it a significant change
+                // and we save it to diff_entries to be evaluated by the user
                 let ratio = calculate_diff(old_entry, new_entry).unwrap_or(0.0);
-                diff_entries.push((new_entry.clone(), ratio));
+
+                // otherwise, if there is no change, we keep the original entry, as it is the same
+                if ratio != 1.0 {
+                    diff_entries.push((new_entry.clone(), ratio));
+                }
             } else {
                 // Store entries that are brand new and can be added to the feed as is
                 brand_new_entries.push(new_entry.clone());
