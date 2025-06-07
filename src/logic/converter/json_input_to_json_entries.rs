@@ -25,3 +25,26 @@ pub fn convert_user_input_to_entries(user_inputs: Vec<InputEntry>) -> JsonEntrie
         .map(input_entry_to_json_entry)
         .collect()
 }
+
+mod test {
+    use crate::logic::converter::json_input_to_json_entries::convert_user_input_to_entries;
+
+    #[test]
+    fn test_convert_user_input_to_entries() {
+        let input = crate::model::json::json_input::InputEntry {
+            id: "test-id".to_string(),
+            title: "Test Entry".to_string(),
+            url: "https://example.com".to_string(),
+            published: None,
+            updated: None,
+            summary: "This is a test entry.".to_string(),
+            content: "Content of the test entry.".to_string(),
+        };
+
+        let entries = convert_user_input_to_entries(vec![input]);
+        assert_eq!(entries.len(), 1);
+        assert_eq!(entries[0].internal_id, "test-id");
+        assert_eq!(entries[0].title, "Test Entry");
+        assert_eq!(entries[0].url, "https://example.com");
+    }
+}
