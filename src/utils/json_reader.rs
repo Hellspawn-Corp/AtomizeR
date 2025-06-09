@@ -1,3 +1,4 @@
+use clap::error::Error;
 use log::{debug, error};
 use serde::de::DeserializeOwned;
 use std::collections::HashSet;
@@ -26,7 +27,7 @@ pub fn read_json_from_file<T: DeserializeOwned>(file_path: &str) -> io::Result<T
     Ok(json_data)
 }
 
-pub fn validate_input_json(entries: &InputEntries) -> io::Result<bool> {
+pub fn validate_input_json(entries: &InputEntries) -> io::Result<()> {
     debug!("Reading and validating input JSON");
 
     let mut ids = HashSet::new();
@@ -41,5 +42,5 @@ pub fn validate_input_json(entries: &InputEntries) -> io::Result<bool> {
     }
 
     debug!("All IDs are unique in the input JSON file.");
-    Ok(true)
+    Ok(())
 }

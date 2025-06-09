@@ -22,10 +22,13 @@ mod test {
 
     #[test]
     fn it_panics_on_non_unique_id() {
-        let entries = crate::utils::json_reader::read_json_from_file("input.json")
-            .expect("Should read JSON file.");
+        let json: Vec<InputEntry> =
+            crate::utils::json_reader::read_json_from_file("tests/res/stinky_data_test.json")
+                .expect("Should read JSON file.");
 
-        let result = crate::utils::json_reader::validate_input_json(&entries);
+        let wrapped_entries = InputEntries::new(json);
+
+        let result = crate::utils::json_reader::validate_input_json(&wrapped_entries);
         assert!(result.is_err());
         assert_eq!(
             Err(io::ErrorKind::InvalidData),
