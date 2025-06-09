@@ -1,10 +1,11 @@
+use clap::error::Error;
 use log::{debug, error};
 use serde::de::DeserializeOwned;
 use std::collections::HashSet;
 use std::fs::File;
 use std::io::{self, BufReader};
 
-use crate::model::json::json_input::InputEntry;
+use crate::model::json::json_input::{InputEntries, InputEntry};
 
 pub fn read_json_from_file<T: DeserializeOwned>(file_path: &str) -> io::Result<T> {
     debug!("Reading JSON data from file: {}", file_path);
@@ -26,13 +27,11 @@ pub fn read_json_from_file<T: DeserializeOwned>(file_path: &str) -> io::Result<T
     Ok(json_data)
 }
 
-pub fn read_and_validate_input_json(file_path: &str) -> io::Result<Vec<InputEntry>> {
-    debug!("Reading and validating input JSON file: {}", file_path);
-
-    let entries: Vec<InputEntry> = read_json_from_file(file_path)?;
+pub fn validate_input_json(entries: &InputEntries) -> io::Result<()> {
+    debug!("Reading and validating input JSON");
 
     let mut ids = HashSet::new();
-    for entry in &entries {
+    for entry in entries.entries.iter() {
         if !ids.insert(&entry.id) {
             error!("Duplicate ID found: {}", entry.id);
             return Err(io::Error::new(
@@ -43,5 +42,5 @@ pub fn read_and_validate_input_json(file_path: &str) -> io::Result<Vec<InputEntr
     }
 
     debug!("All IDs are unique in the input JSON file.");
-    Ok(entries)
+    Ok(())
 }

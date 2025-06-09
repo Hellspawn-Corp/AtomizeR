@@ -15,6 +15,7 @@ mod utils {
     pub mod atom_writer;
     pub mod json_reader;
     pub mod json_writer;
+    mod tests;
 }
 mod model {
     pub mod base {

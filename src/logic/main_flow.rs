@@ -3,29 +3,33 @@ use crate::logic::converter::json_to_atom;
 use crate::logic::templating;
 use crate::model::json::json_entries::JsonEntries;
 use crate::model::json::json_entry::JsonEntry;
+use crate::model::json::json_input::InputEntries;
 use crate::utils::atom_writer;
-use crate::utils::json_reader::read_and_validate_input_json;
+use crate::utils::json_reader::validate_input_json;
 use crate::utils::json_writer::write_json_to_file;
 use crate::{cli::Cli, utils::json_reader::read_json_from_file};
 use env_logger::Env;
 use inquire::Confirm;
 use log::{debug, error, info};
-use similar::{ChangeTag, TextDiff};
+use similar::TextDiff;
 
 pub fn start_flow(args: Cli) -> std::io::Result<()> {
     // Set log level based on --debug flag
     let log_level = if args.debug { "debug" } else { "info" };
     env_logger::Builder::from_env(Env::default().default_filter_or(log_level)).init();
     match args.entries {
-        Some(json) => {
-            info!("Using JSON file: {}", json);
+        Some(path) => {
+            info!("Using JSON file: {}", path);
 
-            let user_input = match read_and_validate_input_json(&json) {
-                Ok(entries) => {
+            let user_input = match read_json_from_file(&path) {
+                Ok(parsed_json) => {
+                    let entries = InputEntries::new(parsed_json);
+                    validate_input_json(&entries)?;
                     println!("Successfully read and validated input.json:");
-                    for entry in &entries {
-                        println!("{:?}", entry);
-                    }
+                    entries
+                        .entries
+                        .iter()
+                        .for_each(|entry| debug!("Entry: {:?}", entry));
                     entries
                 }
                 Err(e) => {
@@ -36,7 +40,8 @@ pub fn start_flow(args: Cli) -> std::io::Result<()> {
 
             let json_entries = convert_user_input_to_entries(user_input);
 
-            let previous_json_entries: JsonEntries = read_json_from_file("entries.json")?;
+            let previous_json_entries =
+                JsonEntries::new(read_json_from_file::<Vec<JsonEntry>>("entries.json")?);
 
             let updated_entries =
                 JsonEntries::new(update_feed(&previous_json_entries, &json_entries));
@@ -158,10 +163,7 @@ pub fn get_user_input(entry: &JsonEntry, ratio: f32) -> (JsonEntry, f32, bool) {
     .with_help_message("Responding with 'no' will still update the entry, but will not change the updated timestamp on it. :)")
     .prompt();
 
-    let response = match user_input {
-        Ok(bool) => bool,
-        Err(_) => false,
-    };
+    let response = user_input.unwrap_or_default();
 
     (entry.clone(), ratio, response)
 }
@@ -169,17 +171,17 @@ pub fn get_user_input(entry: &JsonEntry, ratio: f32) -> (JsonEntry, f32, bool) {
 pub fn parse_new_entries(
     old: &JsonEntries,
     new: &JsonEntries,
-) -> (Vec<JsonEntry>, Vec<(JsonEntry, f32)>) {
-    let mut old_entries = old.entries.to_owned();
-    let new_entries = new.entries.clone();
+) -> (JsonEntries, Vec<(JsonEntry, f32)>) {
+    let mut old_entries = old.clone();
+    let new_entries = new.clone();
 
     let mut diff_entries = Vec::new();
 
-    let mut brand_new_entries = Vec::new();
+    let mut brand_new_entries = JsonEntries::new(Vec::<JsonEntry>::new());
 
     // Iterate over new entries and compare with old entries
-    new_entries.iter().for_each(|new_entry| {
-        old_entries.iter().for_each(|old_entry| {
+    new_entries.entries.iter().for_each(|new_entry| {
+        old_entries.entries.iter().for_each(|old_entry| {
             if old_entry.internal_id == new_entry.internal_id {
                 // If diff ratio is over a certain threshold, we consider it a significant change
                 // and we save it to diff_entries to be evaluated by the user
