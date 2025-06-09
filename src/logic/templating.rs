@@ -1,5 +1,5 @@
 use crate::model::json::json_entries::JsonEntries;
-use crate::model::json::json_entry::JsonEntry;
+use crate::model::json::json_entries::JsonEntry;
 use crate::utils;
 use chrono::{FixedOffset, Utc};
 

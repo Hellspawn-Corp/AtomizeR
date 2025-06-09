@@ -24,7 +24,6 @@ mod model {
     }
     pub mod json {
         pub mod json_entries;
-        pub mod json_entry;
         pub mod json_input;
     }
     pub mod atom {

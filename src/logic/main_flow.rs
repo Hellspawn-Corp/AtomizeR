@@ -2,7 +2,7 @@ use crate::logic::converter::json_input_to_json_entries::convert_user_input_to_e
 use crate::logic::converter::json_to_atom;
 use crate::logic::templating;
 use crate::model::json::json_entries::JsonEntries;
-use crate::model::json::json_entry::JsonEntry;
+use crate::model::json::json_entries::JsonEntry;
 use crate::model::json::json_input::InputEntries;
 use crate::utils::atom_writer;
 use crate::utils::json_reader::validate_input_json;

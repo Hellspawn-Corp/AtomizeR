@@ -1,6 +1,6 @@
 use chrono::{FixedOffset, Utc};
 
-use crate::model::json::json_entry::JsonEntry;
+use crate::model::json::json_entries::JsonEntry;
 use atom_syndication::{Content, Entry, Feed, Text};
 
 pub fn json_entries_to_atom(posts: &[JsonEntry]) -> Feed {

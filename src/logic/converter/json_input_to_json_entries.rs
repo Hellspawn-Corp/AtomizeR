@@ -2,7 +2,7 @@ use chrono::Utc;
 use uuid::Uuid;
 
 use crate::model::json::json_entries::JsonEntries;
-use crate::model::json::json_entry::JsonEntry;
+use crate::model::json::json_entries::JsonEntry;
 use crate::model::json::json_input::{InputEntries, InputEntry};
 
 fn input_entry_to_json_entry(input: InputEntry) -> JsonEntry {

@@ -1,7 +1,9 @@
 use std::ops::Index;
 
-use crate::model::json::json_entry::JsonEntry;
+use crate::model::json::json_entries::JsonEntry;
+use chrono::{DateTime, FixedOffset};
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct JsonEntries {
     pub entries: Vec<JsonEntry>,
@@ -50,4 +52,17 @@ impl Extend<JsonEntry> for JsonEntries {
     fn extend<T: IntoIterator<Item = JsonEntry>>(&mut self, iter: T) {
         self.entries.extend(iter);
     }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct JsonEntry {
+    pub id: Uuid,
+    pub internal_id: String,
+    pub title: String,
+    pub url: String,
+    pub published: DateTime<FixedOffset>,
+    pub updated: DateTime<FixedOffset>,
+    pub summary: String,
+    pub content: String,
+    pub hash: String,
 }
