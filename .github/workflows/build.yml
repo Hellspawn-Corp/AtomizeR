@@ -3,15 +3,50 @@ name: atomizer main pipeline
 
 on:
   push:
+    branches:
+      - main
   pull_request:
     types: [opened]
 
 jobs:
   build:
-    runs-on: ubuntu-latest # 😔😔😔
-
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - run: cargo build --release
-      - run: cargo test --all-features
+
+  coverage: #no use testing something that doesn't compile...
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install grcov
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y lcov
+          cargo install grcov
+
+      - name: Run tests with coverage flags
+        env:
+          CARGO_INCREMENTAL: '0'
+          RUSTFLAGS: '-Zinstrument-coverage'
+          LLVM_PROFILE_FILE: 'coverage-%p-%m.profraw'
+        run: cargo test --all-features
+
+      - name: Generate coverage report
+        run: |
+          mkdir coverage
+          grcov . \
+            --binary-path ./target/debug/ \
+            -s . \
+            -t html \
+            --branch \
+            --ignore-not-existing \
+            --ignore "/*" \
+            -o coverage/
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html
+          path: coverage/
