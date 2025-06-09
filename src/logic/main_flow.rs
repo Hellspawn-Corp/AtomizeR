@@ -18,11 +18,12 @@ pub fn start_flow(args: Cli) -> std::io::Result<()> {
     let log_level = if args.debug { "debug" } else { "info" };
     env_logger::Builder::from_env(Env::default().default_filter_or(log_level)).init();
     match args.entries {
-        Some(json) => {
-            info!("Using JSON file: {}", json);
+        Some(path) => {
+            info!("Using JSON file: {}", path);
 
-            let user_input: InputEntries = match read_json_from_file::<InputEntries>(&json) {
-                Ok(entries) => {
+            let user_input = match read_json_from_file(&path) {
+                Ok(parsed_json) => {
+                    let entries = InputEntries::new(parsed_json);
                     validate_input_json(&entries)?;
                     println!("Successfully read and validated input.json:");
                     entries
@@ -39,7 +40,8 @@ pub fn start_flow(args: Cli) -> std::io::Result<()> {
 
             let json_entries = convert_user_input_to_entries(user_input);
 
-            let previous_json_entries: JsonEntries = read_json_from_file("entries.json")?;
+            let previous_json_entries =
+                JsonEntries::new(read_json_from_file::<Vec<JsonEntry>>("entries.json")?);
 
             let updated_entries =
                 JsonEntries::new(update_feed(&previous_json_entries, &json_entries));

@@ -38,7 +38,7 @@ mod test {
 
     #[test]
     fn it_panics_if_json_not_valid() {
-        crate::utils::json_reader::read_json_from_file::<InputEntries>(
+        crate::utils::json_reader::read_json_from_file::<Vec<InputEntry>>(
             "tests/res/invalid_json.json",
         )
         .expect_err("This should have panicked due to invalid JSON");
