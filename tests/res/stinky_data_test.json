@@ -1,6 +1,6 @@
 [
 	{
-		"id": "not-unique-dumb-id", // This ID is not unique, it is the same in both entries
+		"id": "not-unique-dumb-id",
 		"title": "Entry Title",
 		"url": "https://www.url.com/",
 		"summary": "Test",
