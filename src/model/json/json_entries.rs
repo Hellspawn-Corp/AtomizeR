@@ -1,6 +1,5 @@
 use std::ops::Index;
 
-use crate::model::json::json_entries::JsonEntry;
 use chrono::{DateTime, FixedOffset};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
