@@ -4,7 +4,7 @@ use crate::logic::templating;
 use crate::model::json::json_entries::JsonEntries;
 use crate::model::json::json_entry::JsonEntry;
 use crate::utils::atom_writer;
-use crate::utils::json_reader::read_and_validate_input_json;
+use crate::utils::json_reader::validate_input_json;
 use crate::utils::json_writer::write_json_to_file;
 use crate::{cli::Cli, utils::json_reader::read_json_from_file};
 use env_logger::Env;
@@ -20,8 +20,9 @@ pub fn start_flow(args: Cli) -> std::io::Result<()> {
         Some(json) => {
             info!("Using JSON file: {}", json);
 
-            let user_input = match read_and_validate_input_json(&json) {
+            let user_input = match read_json_from_file(&json) {
                 Ok(entries) => {
+                    validate_input_json(&entries)?;
                     println!("Successfully read and validated input.json:");
                     for entry in &entries {
                         println!("{:?}", entry);
@@ -158,10 +159,7 @@ pub fn get_user_input(entry: &JsonEntry, ratio: f32) -> (JsonEntry, f32, bool) {
     .with_help_message("Responding with 'no' will still update the entry, but will not change the updated timestamp on it. :)")
     .prompt();
 
-    let response = match user_input {
-        Ok(bool) => bool,
-        Err(_) => false,
-    };
+    let response = user_input.unwrap_or_default();
 
     (entry.clone(), ratio, response)
 }

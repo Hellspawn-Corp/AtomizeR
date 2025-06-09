@@ -26,13 +26,11 @@ pub fn read_json_from_file<T: DeserializeOwned>(file_path: &str) -> io::Result<T
     Ok(json_data)
 }
 
-pub fn read_and_validate_input_json(file_path: &str) -> io::Result<Vec<InputEntry>> {
-    debug!("Reading and validating input JSON file: {}", file_path);
-
-    let entries: Vec<InputEntry> = read_json_from_file(file_path)?;
+pub fn validate_input_json(entries: &Vec<InputEntry>) -> io::Result<bool> {
+    debug!("Reading and validating input JSON");
 
     let mut ids = HashSet::new();
-    for entry in &entries {
+    for entry in entries {
         if !ids.insert(&entry.id) {
             error!("Duplicate ID found: {}", entry.id);
             return Err(io::Error::new(
@@ -43,5 +41,5 @@ pub fn read_and_validate_input_json(file_path: &str) -> io::Result<Vec<InputEntr
     }
 
     debug!("All IDs are unique in the input JSON file.");
-    Ok(entries)
+    Ok(true)
 }
