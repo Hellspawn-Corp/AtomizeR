@@ -3,6 +3,7 @@ use crate::logic::converter::json_to_atom;
 use crate::logic::templating;
 use crate::model::json::json_entries::JsonEntries;
 use crate::model::json::json_entry::JsonEntry;
+use crate::model::json::json_input::InputEntries;
 use crate::utils::atom_writer;
 use crate::utils::json_reader::validate_input_json;
 use crate::utils::json_writer::write_json_to_file;
@@ -10,7 +11,7 @@ use crate::{cli::Cli, utils::json_reader::read_json_from_file};
 use env_logger::Env;
 use inquire::Confirm;
 use log::{debug, error, info};
-use similar::{ChangeTag, TextDiff};
+use similar::TextDiff;
 
 pub fn start_flow(args: Cli) -> std::io::Result<()> {
     // Set log level based on --debug flag
@@ -20,13 +21,14 @@ pub fn start_flow(args: Cli) -> std::io::Result<()> {
         Some(json) => {
             info!("Using JSON file: {}", json);
 
-            let user_input = match read_json_from_file(&json) {
+            let user_input: InputEntries = match read_json_from_file::<InputEntries>(&json) {
                 Ok(entries) => {
                     validate_input_json(&entries)?;
                     println!("Successfully read and validated input.json:");
-                    for entry in &entries {
-                        println!("{:?}", entry);
-                    }
+                    entries
+                        .entries
+                        .iter()
+                        .for_each(|entry| debug!("Entry: {:?}", entry));
                     entries
                 }
                 Err(e) => {
@@ -167,17 +169,17 @@ pub fn get_user_input(entry: &JsonEntry, ratio: f32) -> (JsonEntry, f32, bool) {
 pub fn parse_new_entries(
     old: &JsonEntries,
     new: &JsonEntries,
-) -> (Vec<JsonEntry>, Vec<(JsonEntry, f32)>) {
-    let mut old_entries = old.entries.to_owned();
-    let new_entries = new.entries.clone();
+) -> (JsonEntries, Vec<(JsonEntry, f32)>) {
+    let mut old_entries = old.clone();
+    let new_entries = new.clone();
 
     let mut diff_entries = Vec::new();
 
-    let mut brand_new_entries = Vec::new();
+    let mut brand_new_entries = JsonEntries::new(Vec::<JsonEntry>::new());
 
     // Iterate over new entries and compare with old entries
-    new_entries.iter().for_each(|new_entry| {
-        old_entries.iter().for_each(|old_entry| {
+    new_entries.entries.iter().for_each(|new_entry| {
+        old_entries.entries.iter().for_each(|old_entry| {
             if old_entry.internal_id == new_entry.internal_id {
                 // If diff ratio is over a certain threshold, we consider it a significant change
                 // and we save it to diff_entries to be evaluated by the user

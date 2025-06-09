@@ -3,7 +3,7 @@ mod test {
 
     use serde::de;
 
-    use crate::model::json::json_input::InputEntry;
+    use crate::model::json::json_input::{InputEntries, InputEntry};
 
     #[test]
     fn it_parses_json_input() {
@@ -22,9 +22,10 @@ mod test {
 
     #[test]
     fn it_panics_on_non_unique_id() {
-        let entries =
-            crate::utils::json_reader::read_json_from_file("tests/res/stinky_data_test.json");
-        let result = crate::utils::json_reader::validate_input_json(&entries.unwrap());
+        let entries = crate::utils::json_reader::read_json_from_file("input.json")
+            .expect("Should read JSON file.");
+
+        let result = crate::utils::json_reader::validate_input_json(&entries);
         assert!(result.is_err());
         assert_eq!(
             Err(io::ErrorKind::InvalidData),
@@ -34,7 +35,7 @@ mod test {
 
     #[test]
     fn it_panics_if_json_not_valid() {
-        crate::utils::json_reader::read_json_from_file::<Vec<InputEntry>>(
+        crate::utils::json_reader::read_json_from_file::<InputEntries>(
             "tests/res/invalid_json.json",
         )
         .expect_err("This should have panicked due to invalid JSON");

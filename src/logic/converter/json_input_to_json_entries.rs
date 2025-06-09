@@ -3,7 +3,7 @@ use uuid::Uuid;
 
 use crate::model::json::json_entries::JsonEntries;
 use crate::model::json::json_entry::JsonEntry;
-use crate::model::json::json_input::InputEntry;
+use crate::model::json::json_input::{InputEntries, InputEntry};
 
 fn input_entry_to_json_entry(input: InputEntry) -> JsonEntry {
     JsonEntry {
@@ -19,7 +19,7 @@ fn input_entry_to_json_entry(input: InputEntry) -> JsonEntry {
     }
 }
 
-pub fn convert_user_input_to_entries(user_inputs: Vec<InputEntry>) -> JsonEntries {
+pub fn convert_user_input_to_entries(user_inputs: InputEntries) -> JsonEntries {
     user_inputs
         .into_iter()
         .map(input_entry_to_json_entry)
@@ -27,7 +27,10 @@ pub fn convert_user_input_to_entries(user_inputs: Vec<InputEntry>) -> JsonEntrie
 }
 
 mod test {
-    use crate::logic::converter::json_input_to_json_entries::convert_user_input_to_entries;
+    use crate::{
+        logic::converter::json_input_to_json_entries::convert_user_input_to_entries,
+        model::json::json_input::InputEntries,
+    };
 
     #[test]
     fn test_convert_user_input_to_entries() {
@@ -41,7 +44,7 @@ mod test {
             content: "Content of the test entry.".to_string(),
         };
 
-        let entries = convert_user_input_to_entries(vec![input]);
+        let entries = convert_user_input_to_entries(InputEntries::new(vec![input]));
         assert_eq!(entries.len(), 1);
         assert_eq!(entries[0].internal_id, "test-id");
         assert_eq!(entries[0].title, "Test Entry");
