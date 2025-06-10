@@ -23,7 +23,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install grcov
         run: |
-          sudo apt-get update
           sudo apt-get install -y lcov
           rustup component add llvm-tools
           cargo install grcov
