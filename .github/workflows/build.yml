@@ -1,0 +1,54 @@
+name: atomizer main pipeline
+# Build project and run some tests hopefully.
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cargo build --release
+
+  coverage:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install grcov
+        run: |
+          sudo apt-get install -y lcov
+          rustup component add llvm-tools
+          cargo install grcov
+
+      - name: Run tests with coverage flags
+        env:
+          CARGO_INCREMENTAL: '0'
+          RUSTFLAGS: '-Cinstrument-coverage'
+          LLVM_PROFILE_FILE: 'coverage-%p-%m.profraw'
+        run: cargo test --all-features
+
+      - name: Generate coverage report
+        run: |
+          mkdir -p coverage
+          grcov . \
+            --binary-path ./target/debug/ \
+            -s . \
+            -t lcov \
+            --branch \
+            --ignore-not-existing \
+            --ignore "/*" \
+            -o coverage/lcov.info
+
+      - name: Report coverage
+        uses: zgosalvez/github-actions-report-lcov@v4
+        with:
+          coverage-files: coverage/lcov.info
+          github-token: ${{ secrets.GITHUB_TOKEN }}
