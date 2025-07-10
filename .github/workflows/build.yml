@@ -1,0 +1,113 @@
+name: atomizer main pipeline
+# Build project and run some tests hopefully.
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-registry-
+
+      - name: Cache cargo build
+        uses: actions/cache@v4
+        with:
+          path: target
+          key: ${{ runner.os }}-cargo-build-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-build-
+
+      - run: cargo build --release
+
+  coverage:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-registry-
+
+      - name: Cache cargo build
+        uses: actions/cache@v4
+        with:
+          path: target
+          key: ${{ runner.os }}-cargo-build-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-build-
+
+      - name: Cache cargo bin (for grcov and other tools)
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin
+          key: ${{ runner.os }}-cargo-bin-grcov-${{ hashFiles('.github/workflows/build.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-bin-grcov-
+
+      - name: Install grcov
+        run: |
+          sudo apt-get install -y lcov
+          rustup component add llvm-tools
+          cargo install grcov
+
+      - name: Run tests with coverage flags
+        env:
+          CARGO_INCREMENTAL: '0'
+          RUSTFLAGS: '-Cinstrument-coverage'
+          LLVM_PROFILE_FILE: 'coverage-%p-%m.profraw'
+        run: |
+          cargo test --all-features > test-results.log
+
+      - name: Generate coverage report
+        run: |
+          mkdir -p coverage
+          grcov . \
+            --binary-path ./target/debug/ \
+            -s . \
+            -t lcov \
+            --branch \
+            --ignore-not-existing \
+            --ignore "/*" \
+            -o coverage/lcov.info
+
+      - name: Report coverage
+        uses: zgosalvez/github-actions-report-lcov@v4
+        with:
+          coverage-files: coverage/lcov.info
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload test results artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test-results.log
+
+      - name: Comment test results on PR
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          path: test-results.log
