@@ -60,6 +60,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cargo-build-
 
+      - name: Cache cargo bin (for grcov and other tools)
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin
+          key: ${{ runner.os }}-cargo-bin-grcov-${{ hashFiles('.github/workflows/build.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-bin-grcov-
+
       - name: Install grcov
         run: |
           sudo apt-get install -y lcov
